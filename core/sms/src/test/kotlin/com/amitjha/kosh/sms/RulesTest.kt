@@ -124,7 +124,7 @@ class CategoryGuesserTest {
         assertEquals("shopping", CategoryGuesser.guess("Flipkart", "", TxnType.EXPENSE))
         assertEquals("fuel", CategoryGuesser.guess("Indian Oil", "", TxnType.EXPENSE))
         assertEquals("travel", CategoryGuesser.guess("IRCTC", "", TxnType.EXPENSE))
-        assertEquals("bills", CategoryGuesser.guess("Airtel", "", TxnType.EXPENSE))
+        assertEquals("bills_mobile", CategoryGuesser.guess("Airtel", "", TxnType.EXPENSE))
         assertEquals("investment", CategoryGuesser.guess("Zerodha", "", TxnType.EXPENSE))
         assertEquals("people", CategoryGuesser.guess("UPI XXXXXX3210", "Sent Rs.500", TxnType.EXPENSE))
         assertEquals("salary", CategoryGuesser.guess("Acme", "NEFT SALARY DEC", TxnType.INCOME))

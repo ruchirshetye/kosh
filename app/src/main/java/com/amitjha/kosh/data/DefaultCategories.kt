@@ -32,6 +32,15 @@ object DefaultCategories {
         expense("gifts", "Gifts & Donations", "card_giftcard", 0xFFE64980),
         expense("transfer", "Transfers", "swap_horiz", 0xFF868E96),
         expense("other", "Other", "category", 0xFFADB5BD),
+        // Subcategories of Bills & Utilities. Their spending also counts towards Bills in totals and budgets.
+        sub("bills", "bills_electricity", "Electricity", "bolt", 0xFFFAB005),
+        sub("bills", "bills_mobile", "Mobile", "smartphone", 0xFF5C7CFA),
+        sub("bills", "bills_internet", "Internet & broadband", "wifi", 0xFF4C6EF5),
+        sub("bills", "bills_gas", "Gas & LPG", "propane_tank", 0xFFFD7E14),
+        sub("bills", "bills_water", "Water", "water_drop", 0xFF228BE6),
+        sub("bills", "bills_dth", "DTH & cable TV", "tv", 0xFF7950F2),
+        sub("bills", "bills_maintenance", "Building maintenance", "apartment", 0xFF748FFC),
+        sub("bills", "bills_property_tax", "Property tax", "account_balance", 0xFF495057),
         // Income: what was earned. Refunds and cashback come off spending, and money received isn't income.
         income("salary", "Salary", "payments", 0xFF2F9E44),
         income("interest", "Interest & dividends", "savings", 0xFF0CA678),
@@ -44,6 +53,9 @@ object DefaultCategories {
 
     private fun expense(key: String, name: String, icon: String, color: Long) =
         CategoryEntity(key = key, name = name, type = TxnType.EXPENSE, icon = icon, colorArgb = color)
+
+    private fun sub(parent: String, key: String, name: String, icon: String, color: Long) =
+        CategoryEntity(key = key, name = name, type = TxnType.EXPENSE, icon = icon, colorArgb = color, parentKey = parent)
 
     private fun income(key: String, name: String, icon: String, color: Long) =
         CategoryEntity(key = key, name = name, type = TxnType.INCOME, icon = icon, colorArgb = color)

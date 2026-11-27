@@ -88,6 +88,9 @@ class InsightRepository(
         val monthStartDay = s.monthStartDay
         val accountList = accounts.accounts()
         val cardIds = accountList.filter { it.isCard }.map { it.id }.toSet()
+        // Subcategories (Electricity, Mobile…) count as their parent (Bills), as on the Home screen.
+        val categories = db.categories().all()
+        val tree = com.amitjha.kosh.data.CategoryTree(categories)
         // Split transactions count as their parts, as on the Home and Budgets screens.
         val txns = com.amitjha.kosh.domain.Splits.expand(
             db.transactions().since(since).filter { SmsMapping.countsInStats(it) },
@@ -98,7 +101,7 @@ class InsightRepository(
                     date = Time.toDate(t.timestamp),
                     amount = t.amount,
                     type = t.type,
-                    category = t.categoryKey,
+                    category = tree.rootOf(t.categoryKey),
                     merchant = t.merchant,
                     accountId = t.accountId,
                     isCreditCard = t.accountId in cardIds,
@@ -140,7 +143,7 @@ class InsightRepository(
                     maturityValue = maturityValue(it),
                 )
             },
-            categoryNames = db.categories().all().associate { it.key to it.name },
+            categoryNames = categories.associate { it.key to it.name },
             monthStartDay = monthStartDay,
             payCycle = s.payCycle,
             monthlyIncomeHint = featurePrefs?.settings?.first()?.salary,

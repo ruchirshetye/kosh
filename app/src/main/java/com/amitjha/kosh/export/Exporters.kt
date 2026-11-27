@@ -54,7 +54,7 @@ object Exporters {
     /** Expenses are negative, income positive; a transfer's account column reads "From → To". */
     fun csv(data: ExportData, lineEnd: String = "\n"): String {
         val accounts = data.accounts.associateBy { it.id }
-        val categories = data.categories.associateBy { it.key }
+        val tree = com.amitjha.kosh.data.CategoryTree(data.categories)
         val sb = StringBuilder(BOM)
         sb.append(CSV_HEADER.joinToString(",")).append(lineEnd)
         for (t in rows(data)) {
@@ -68,7 +68,7 @@ object Exporters {
                 dateTime.format(Instant.ofEpochMilli(t.timestamp).atZone(data.zone)),
                 account,
                 t.type.name.lowercase().replaceFirstChar { it.uppercase() },
-                categories[t.categoryKey]?.name ?: t.categoryKey,
+                tree.label(t.categoryKey),
                 t.merchant.orEmpty(),
                 t.note.orEmpty(),
                 rupees(signed),

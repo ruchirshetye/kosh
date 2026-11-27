@@ -21,6 +21,9 @@ object CategoryGuesser {
         "fitness", "education", "travel", "subscriptions", "emi", "investment", "insurance", "taxes", "cash",
         "people", "personal_care", "household", "gifts", "transfer", "salary", "refund", "interest", "cashback",
         "business", "rental", "other_income", "other",
+        // Subcategories of bills; the app counts them towards "bills" in totals and budgets.
+        "bills_electricity", "bills_mobile", "bills_internet", "bills_gas", "bills_water", "bills_dth", "bills_maintenance",
+        "bills_property_tax",
     )
 
     private class Rule(val category: String, brands: String, generic: String = "") {
@@ -201,8 +204,14 @@ object CategoryGuesser {
         "investment" to "\\bsip\\b|mutual ?fund|\\bmf\\b ?(purchase|sip)",
         "emi" to "\\bemi\\b|loan ?(a/?c|account|repayment)|\\bnach\\b|\\becs\\b",
         "insurance" to "insurance ?premium|policy ?(no|premium)",
-        "bills" to "recharge|electricity|broadband|\\bdth\\b|postpaid|bill ?payment|\\bbbps\\b",
+        "bills_internet" to "broadband|fibernet|\\bftth\\b",
+        "bills_dth" to "\\bdth\\b",
+        "bills_mobile" to "recharge|postpaid",
+        "bills_electricity" to "electricity",
+        "bills_maintenance" to "society ?maintenance|maintenance ?(charges?|bill|dues)",
+        "bills" to "bill ?payment|\\bbbps\\b",
         "rent" to "\\brent\\b",
+        "bills_property_tax" to "property ?tax",
         "taxes" to "income ?tax|tax ?payment|challan",
     ).map { it.first to Regex("(?i)" + it.second) }
 

@@ -146,13 +146,15 @@ class BudgetRepository(
             val all = parts.filter { it.type == TxnType.EXPENSE }
             val back = parts.filter(MoneyIn::isGivenBack)
             val byCat = cats.associateBy { it.key }
+            val tree = com.amitjha.kosh.data.CategoryTree(cats)
             // Spending per category in each period, with refunds and cashback taken off.
             val netIn = HashMap<Period, Map<String, Paise>>()
             fun net(p: Period) = netIn.getOrPut(p) {
                 MoneyIn.netByCategory(all.filter { Time.toDate(it.timestamp) in p }, back.filter { Time.toDate(it.timestamp) in p }, all)
             }
             fun spentIn(b: BudgetEntity, p: Period): Paise =
-                net(p).let { m -> if (b.categoryKey == null) m.values.sum() else m[b.categoryKey] ?: 0L }
+                // A budget on a parent category (Bills) covers its subcategories (Electricity, Mobile…) too.
+                net(p).let { m -> if (b.categoryKey == null) m.values.sum() else tree.keysUnder(b.categoryKey).sumOf { m[it] ?: 0L } }
             budgets.map { b ->
                 val spent = spentIn(b, period)
                 val carry = if (!b.rollover) 0L else {
@@ -173,11 +175,15 @@ class BudgetRepository(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeEnvelope(): Flow<EnvelopeStatus> = cycle().flatMapLatest { payCycle ->
         val period = Period.containing(Time.today(), payCycle)
-        combine(db.budgets().observeAll(), db.transactions().observeBetween(period.startMillis, period.endMillis)) { budgets, txns ->
+        combine(
+            db.budgets().observeAll(),
+            db.transactions().observeBetween(period.startMillis, period.endMillis),
+            db.categories().observeAll(),
+        ) { budgets, txns, cats ->
             val income = txns.filter { MoneyIn.isEarned(it) && SmsMapping.countsInStats(it) && Time.toDate(it.timestamp) in period }
                 .sumOf { it.amount }
             EnvelopeStatus(
-                com.amitjha.kosh.finance.BudgetMath.envelope(income, budgets.filter { it.categoryKey != null }.map { it.monthlyLimit }),
+                com.amitjha.kosh.finance.BudgetMath.envelope(income, assignedLimits(budgets, com.amitjha.kosh.data.CategoryTree(cats))),
                 period,
             )
         }
@@ -205,6 +211,18 @@ class BudgetRepository(
     }
 
     companion object {
+        /**
+         * Limits of the category budgets, counting a subcategory budget (Electricity) only when its parent (Bills) has no
+         * budget of its own, since the parent's limit already covers it.
+         */
+        fun assignedLimits(budgets: List<BudgetEntity>, tree: com.amitjha.kosh.data.CategoryTree): List<Paise> {
+            val budgeted = budgets.mapNotNull { it.categoryKey }.toSet()
+            return budgets.filter { b ->
+                val key = b.categoryKey ?: return@filter false
+                !tree.isSub(key) || tree.rootOf(key) !in budgeted
+            }.map { it.monthlyLimit }
+        }
+
         const val MAX_ROLLOVER_PERIODS = 12
 
         /** Projection over a custom-length period (the finance engine assumes calendar months). */

@@ -43,6 +43,40 @@ class SummaryTest {
     }
 
     @Test
+    fun subcategoriesRollUpUnderTheirParentWithASplit() {
+        val period = Period.of(java.time.YearMonth.of(2025, 3))
+        fun cat(key: String, parent: String? = null) = CategoryEntity(key = key, name = key, type = TxnType.EXPENSE, icon = "", colorArgb = 0, parentKey = parent)
+        val cats = listOf(cat("bills"), cat("bills_electricity", "bills"), cat("bills_mobile", "bills"), cat("food")).associateBy { it.key }
+        val txns = listOf(
+            txn(LocalDate.of(2025, 3, 2), TxnType.EXPENSE, 1_500_00, "bills_electricity", "MSEDCL"),
+            txn(LocalDate.of(2025, 3, 3), TxnType.EXPENSE, 500_00, "bills_mobile", "Jio"),
+            txn(LocalDate.of(2025, 3, 4), TxnType.EXPENSE, 200_00, "bills", "BillDesk"),
+            txn(LocalDate.of(2025, 3, 5), TxnType.EXPENSE, 1_000_00, "food", "Swiggy"),
+        )
+        val s = TransactionRepository.summarise(period, txns, cats)
+        assertEquals(listOf("bills", "food"), s.byCategory.map { it.categoryKey })
+        val bills = s.byCategory.first()
+        assertEquals(2_200_00L, bills.total)
+        assertEquals(3, bills.count)
+        assertEquals(listOf("bills_electricity", "bills_mobile", "bills"), bills.subs.map { it.categoryKey })
+        assertEquals(emptyList<CategorySpend>(), s.byCategory[1].subs)
+    }
+
+    @Test
+    fun parentBudgetCoversItsSubcategoryBudgetsInTheEnvelope() {
+        fun cat(key: String, parent: String? = null) = CategoryEntity(key = key, name = key, type = TxnType.EXPENSE, icon = "", colorArgb = 0, parentKey = parent)
+        val tree = com.amitjha.kosh.data.CategoryTree(listOf(cat("bills"), cat("bills_electricity", "bills"), cat("bills_mobile", "bills"), cat("food")))
+        fun budget(key: String?, limit: Long) = com.amitjha.kosh.data.BudgetEntity(categoryKey = key, monthlyLimit = limit)
+        // Bills' own limit already includes Electricity, so Electricity isn't assigned twice.
+        assertEquals(
+            listOf(5_000L, 3_000L),
+            BudgetRepository.assignedLimits(listOf(budget(null, 50_000), budget("bills", 5_000), budget("bills_electricity", 2_000), budget("food", 3_000)), tree),
+        )
+        // Without a Bills budget, a subcategory budget counts on its own.
+        assertEquals(listOf(2_000L), BudgetRepository.assignedLimits(listOf(budget("bills_electricity", 2_000)), tree))
+    }
+
+    @Test
     fun customMonthStartPeriods() {
         val p = Period.containing(LocalDate.of(2025, 3, 10), monthStartDay = 25)
         assertEquals(LocalDate.of(2025, 2, 25), p.start)

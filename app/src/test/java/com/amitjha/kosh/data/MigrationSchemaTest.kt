@@ -204,4 +204,29 @@ class MigrationSchemaTest {
             "ALTER TABLE accounts ADD COLUMN memberId INTEGER"
         assertEquals(expected, sql)
     }
+
+    @Test
+    fun version11AddsOnlyTheCategoryParentKey() {
+        assertEquals(tables(schema(10)), tables(schema(11)))
+        val v10 = columns(schema(10), "categories")
+        val v11 = columns(schema(11), "categories")
+        assertEquals(setOf("parentKey"), v11.keys - v10.keys)
+        assertEquals("TEXT", v11.getValue("parentKey").getString("affinity"))
+        assertTrue(!v11.getValue("parentKey").getBoolean("notNull"))
+        for (table in tables(schema(10)) - "categories") {
+            assertEquals(table, columns(schema(10), table).keys, columns(schema(11), table).keys)
+        }
+    }
+
+    @Test
+    fun migration10To11RunsExactlyWhatRoomExpects() {
+        val sql = mutableListOf<String>()
+        val db = java.lang.reflect.Proxy.newProxyInstance(
+            javaClass.classLoader, arrayOf(androidx.sqlite.db.SupportSQLiteDatabase::class.java),
+        ) { _, m, args -> if (m.name == "execSQL") sql += args[0] as String; null } as androidx.sqlite.db.SupportSQLiteDatabase
+        KoshDatabase.MIGRATION_10_11.migrate(db)
+        assertEquals(listOf("ALTER TABLE categories ADD COLUMN parentKey TEXT DEFAULT NULL"), sql)
+        // Room checks a migrated column's default against the schema's.
+        assertEquals("NULL", columns(schema(11), "categories").getValue("parentKey").optString("defaultValue"))
+    }
 }

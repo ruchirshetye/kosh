@@ -67,6 +67,9 @@ data class CategoryEntity(
     val icon: String,
     val colorArgb: Long,
     val isDefault: Boolean = true,
+    /** v11: the category this one sits under (e.g. `bills` for Electricity); null for a top-level category. One level only. */
+    @androidx.room.ColumnInfo(defaultValue = "NULL")
+    val parentKey: String? = null,
 )
 
 @Entity(

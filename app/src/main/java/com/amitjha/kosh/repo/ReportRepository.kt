@@ -104,6 +104,7 @@ class ReportRepository(
     private suspend fun build(title: String, from: LocalDate, to: LocalDate, periods: List<Period>): Report {
         val txns = db.transactions().between(Time.startOfDay(from), Time.startOfDay(to) - 1)
         val categories = db.categories().all().associateBy { it.key }
+        val tree = com.amitjha.kosh.data.CategoryTree(categories.values)
         val accounts = db.accounts().all().associateBy { it.id }
         val splits = transactions.splitsByTransaction()
         val whole = Period(from, to)
@@ -113,7 +114,7 @@ class ReportRepository(
                 ReportLine(
                     date = Time.toDate(it.timestamp),
                     title = it.merchant?.takeIf { m -> m.isNotBlank() } ?: categories[it.categoryKey]?.name ?: it.categoryKey,
-                    category = categories[it.categoryKey]?.name ?: it.categoryKey,
+                    category = tree.label(it.categoryKey),
                     account = accounts[it.accountId]?.name.orEmpty(),
                     amount = it.amount,
                     type = it.type,

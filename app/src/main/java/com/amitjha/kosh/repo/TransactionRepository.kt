@@ -46,7 +46,15 @@ data class TxnFilter(
     val tag: String? = null,
 )
 
-data class CategorySpend(val category: CategoryEntity?, val categoryKey: String, val total: Paise, val count: Int, val share: Double)
+data class CategorySpend(
+    val category: CategoryEntity?,
+    val categoryKey: String,
+    val total: Paise,
+    val count: Int,
+    val share: Double,
+    /** For a category with subcategories: how [total] splits across them (the parent's own key is "general"). */
+    val subs: List<CategorySpend> = emptyList(),
+)
 data class DailyPoint(val date: LocalDate, val income: Paise, val expense: Paise)
 data class MerchantSpend(val merchant: String, val total: Paise, val count: Int)
 
@@ -99,7 +107,8 @@ class TransactionRepository(private val db: KoshDatabase) {
                 val t = item.txn
                 val tags = com.amitjha.kosh.data.Tags.decode(t.tags)
                 (filter.accountId == null || t.accountId == filter.accountId || t.toAccountId == filter.accountId) &&
-                    (filter.categoryKey == null || t.categoryKey == filter.categoryKey) &&
+                    // A parent category also matches its subcategories.
+                    (filter.categoryKey == null || t.categoryKey == filter.categoryKey || item.category?.parentKey == filter.categoryKey) &&
                     (filter.type == null || t.type == filter.type) &&
                     (filter.tag == null || com.amitjha.kosh.data.Tags.has(t.tags, filter.tag)) &&
                     (q.isBlank() || if (tagQuery) tags.any { it.contains(q.drop(1), ignoreCase = true) }
@@ -265,9 +274,19 @@ class TransactionRepository(private val db: KoshDatabase) {
 
             val counts = expenses.groupingBy { it.categoryKey }.eachCount()
             val history = txns.filter { it.type == TxnType.EXPENSE && SmsMapping.countsInStats(it) }
+            // Subcategories roll up into their parent; the parent keeps the split for drill-down.
+            val tree = com.amitjha.kosh.data.CategoryTree(categories.values)
+            fun spend(key: String, sum: Paise, count: Int, subs: List<CategorySpend> = emptyList()) =
+                CategorySpend(categories[key], key, sum, count, if (expense > 0) sum.toDouble() / expense else 0.0, subs)
             val byCategory = MoneyIn.netByCategory(expenses, givenBack, history)
                 .filter { it.value > 0 }
-                .map { (key, sum) -> CategorySpend(categories[key], key, sum, counts[key] ?: 0, if (expense > 0) sum.toDouble() / expense else 0.0) }
+                .entries.groupBy { tree.rootOf(it.key) }
+                .map { (root, entries) ->
+                    val subs = if (entries.any { tree.isSub(it.key) }) {
+                        entries.map { spend(it.key, it.value, counts[it.key] ?: 0) }.sortedByDescending { it.total }
+                    } else emptyList()
+                    spend(root, entries.sumOf { it.value }, entries.sumOf { counts[it.key] ?: 0 }, subs)
+                }
                 .sortedByDescending { it.total }
 
             val byDay = counted.groupBy { Time.toDate(it.timestamp) }
