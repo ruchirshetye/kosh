@@ -350,7 +350,7 @@ fun AddTransactionContent(
             Column(Modifier.padding(horizontal = 20.dp).navigationBarsPadding()) {
                 Text("Category", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
-                CategoryGrid(catsForType, categoryKey, onSelect = {
+                CategoryGrid(catsForType, categoryKey, onAddSubcategory = rememberAddSubcategory(), onSelect = {
                     categoryKey = it.key
                     categoryPicked = true
                     pickCategory = false

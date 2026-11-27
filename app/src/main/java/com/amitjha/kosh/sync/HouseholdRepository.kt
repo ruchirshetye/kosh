@@ -160,7 +160,8 @@ class HouseholdRepository(private val db: KoshDatabase, private val store: House
     suspend fun clearReceived() = dao.deleteReceived()
 
     private suspend fun payloadFor(kind: HouseholdKind, localId: Long): String? {
-        val names = db.categories().all().associate { it.key to it.name }
+        // A subcategory travels as "Bills & Utilities › Electricity", so a partner on any version sees where it belongs.
+        val names = db.categories().all().let { all -> val tree = com.amitjha.kosh.data.CategoryTree(all); all.associate { it.key to tree.label(it.key) } }
         return when (kind) {
             HouseholdKind.TXN -> db.transactions().byId(localId)?.let { HouseholdCodec.txn(it, names[it.categoryKey] ?: it.categoryKey) }
             HouseholdKind.BUDGET -> db.budgets().all().firstOrNull { it.id == localId }

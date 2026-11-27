@@ -689,6 +689,27 @@ fun HomeContent(
                                         AmountText(c.total, style = AmountStyles.small, hidden = hidden, compact = true)
                                         Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = KoshTheme.colors.tertiaryText, modifier = Modifier.size(16.dp))
                                     }
+                                    // Subcategories (Electricity, Mobile…) under their parent; the parent's own share is "General".
+                                    c.subs.forEach { sub ->
+                                        val general = sub.categoryKey == c.categoryKey
+                                        Row(
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .then(if (general) Modifier else Modifier.clickable { onCategory(sub.categoryKey) })
+                                                .padding(start = 18.dp, top = 4.dp, bottom = 4.dp, end = 16.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                if (general) "General" else sub.category?.name ?: sub.categoryKey,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = KoshTheme.colors.subtleText,
+                                                modifier = Modifier.weight(1f),
+                                                maxLines = 1,
+                                            )
+                                            AmountText(sub.total, style = AmountStyles.small, hidden = hidden, compact = true)
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -80,6 +80,8 @@ class BackupManager(private val context: Context, private val db: KoshDatabase, 
                 r.clearAccounts(); r.clearInvestments(); r.clearCategories(); r.clearBudgets()
                 r.clearGoals(); r.clearRules(); r.clearNetWorth(); r.clearTombstones()
                 r.insertCategories(data.categories)
+                // A backup from before subcategories has none; add the built-in ones back (existing keys are kept).
+                db.categories().insertAll(com.amitjha.kosh.data.DefaultCategories.all)
                 r.insertFamilyMembers(data.familyMembers)
                 r.insertAccounts(data.accounts)
                 r.insertTransactions(data.transactions)
@@ -194,7 +196,7 @@ object BackupJson {
         })
         .put("categories", arr(d.categories) { c ->
             JSONObject().put("id", c.id).put("key", c.key).put("name", c.name).put("type", c.type.name)
-                .put("icon", c.icon).put("colorArgb", c.colorArgb).put("isDefault", c.isDefault)
+                .put("icon", c.icon).put("colorArgb", c.colorArgb).put("isDefault", c.isDefault).putOpt("parentKey", c.parentKey)
         })
         .put("transactions", arr(d.transactions) { t ->
             JSONObject().put("id", t.id).put("accountId", t.accountId).putOpt("toAccountId", t.toAccountId)
@@ -291,6 +293,7 @@ object BackupJson {
                 CategoryEntity(
                     id = c.getLong("id"), key = c.getString("key"), name = c.getString("name"), type = TxnType.valueOf(c.getString("type")),
                     icon = c.getString("icon"), colorArgb = c.getLong("colorArgb"), isDefault = c.optBoolean("isDefault", true),
+                    parentKey = c.str("parentKey"),
                 )
             },
             transactions = list(o, "transactions") { t ->

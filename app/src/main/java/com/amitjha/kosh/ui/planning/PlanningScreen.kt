@@ -393,7 +393,12 @@ private fun AddBudgetSheet(
     onDismiss: () -> Unit,
     onSave: (String?, Long) -> Unit,
 ) {
-    val options: List<CategoryEntity?> = (if (hasOverall) emptyList<CategoryEntity?>() else listOf(null)) + categories
+    // Subcategories (Electricity, Mobile…) are listed right under their parent (Bills & Utilities).
+    val tree = remember(categories) { com.amitjha.kosh.data.CategoryTree(categories) }
+    val ordered = remember(categories) {
+        tree.roots(categories).flatMap { root -> listOf(root) + tree.childrenOf(root.key).filter { c -> categories.any { it.key == c.key } } }
+    }
+    val options: List<CategoryEntity?> = (if (hasOverall) emptyList<CategoryEntity?>() else listOf(null)) + ordered
     var selected by remember { mutableStateOf(options.firstOrNull()) }
     var limit by remember { mutableStateOf<Long?>(null) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
@@ -405,7 +410,7 @@ private fun AddBudgetSheet(
                     "For",
                     options,
                     selected,
-                    { it?.name ?: "All spending (overall)" },
+                    { c -> if (c == null) "All spending (overall)" else if (tree.isSub(c.key)) "    ${c.name}" else c.name },
                     { selected = it },
                     leading = { c -> if (c != null) CategoryIcon(c.icon, c.color(), size = 28.dp) },
                 )

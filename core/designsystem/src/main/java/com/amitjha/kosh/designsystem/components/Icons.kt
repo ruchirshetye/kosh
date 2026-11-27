@@ -7,6 +7,13 @@ import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.automirrored.outlined.TrendingUp
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.AddCard
+import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.PropaneTank
+import androidx.compose.material.icons.outlined.Smartphone
+import androidx.compose.material.icons.outlined.Tv
+import androidx.compose.material.icons.outlined.WaterDrop
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material.icons.outlined.CardGiftcard
 import androidx.compose.material.icons.outlined.Chair
 import androidx.compose.material.icons.outlined.FitnessCenter
@@ -79,6 +86,13 @@ object CategoryIcons {
         "card_giftcard" to Icons.Outlined.CardGiftcard,
         "work" to Icons.Outlined.Work,
         "real_estate_agent" to Icons.Outlined.RealEstateAgent,
+        "bolt" to Icons.Outlined.Bolt,
+        "smartphone" to Icons.Outlined.Smartphone,
+        "wifi" to Icons.Outlined.Wifi,
+        "propane_tank" to Icons.Outlined.PropaneTank,
+        "water_drop" to Icons.Outlined.WaterDrop,
+        "tv" to Icons.Outlined.Tv,
+        "apartment" to Icons.Outlined.Apartment,
     )
 
     /** All supported icon names, e.g. for an icon picker. */

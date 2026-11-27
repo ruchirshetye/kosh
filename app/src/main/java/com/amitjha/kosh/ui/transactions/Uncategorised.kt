@@ -243,7 +243,7 @@ fun UncategorisedScreen(nav: NavController) {
                     style = MaterialTheme.typography.bodySmall,
                     color = KoshTheme.colors.subtleText,
                 )
-                CategoryGrid(categories = state.categories.filter { it.key != "other" }, selectedKey = null, onSelect = {
+                CategoryGrid(categories = state.categories.filter { it.key != "other" }, selectedKey = null, onAddSubcategory = rememberAddSubcategory(), onSelect = {
                     vm.assign(group, it.key)
                     picking = null
                     scope.launch { snackbar.showSnackbar("Moved ${group.count} to ${it.name}") }

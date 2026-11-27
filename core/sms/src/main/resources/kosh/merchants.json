@@ -217,6 +217,16 @@
       ]
     },
     {
+      "category": "bills_property_tax",
+      "brands": [
+        "property ?tax",
+        "pmc ?property",
+        "house ?tax",
+        "municipal ?tax"
+      ],
+      "generic": []
+    },
+    {
       "category": "taxes",
       "brands": [
         "income ?tax",
@@ -228,12 +238,10 @@
         "self ?assessment ?tax",
         "tax ?payment",
         "e-?pay ?tax",
-        "property ?tax",
         "municipal ?corp",
         "mcgm",
         "bbmp",
         "ghmc",
-        "pmc ?property",
         "gst ?payment",
         "gstn",
         "parivahan",
@@ -260,6 +268,30 @@
       "generic": []
     },
     {
+      "category": "bills_maintenance",
+      "brands": [
+        "mygate",
+        "nobroker ?hood",
+        "apna ?complex",
+        "\\badda\\b",
+        "adda ?(io|\\.io|pay)",
+        "society ?maintenance",
+        "maintenance ?(charges?|bill|fee|dues)",
+        "nobrokerhood"
+      ],
+      "generic": [
+        "society",
+        "maintenance",
+        "\\brwa\\b",
+        "apartment ?owners",
+        "residents? ?welfare",
+        "co-?op(erative)? ?hsg",
+        "housing ?society",
+        "chs ?ltd",
+        "\\bchsl\\b"
+      ]
+    },
+    {
       "category": "rent",
       "brands": [
         "\\brent\\b",
@@ -272,18 +304,12 @@
         "colive",
         "square ?yards",
         "isthara",
-        "\\bsettl\\b",
-        "apna ?complex"
+        "\\bsettl\\b"
       ],
       "generic": [
         "landlord",
-        "society",
-        "maintenance",
         "apartment",
-        "residency",
-        "\\brwa\\b",
-        "nobrokerhood",
-        "mygate"
+        "residency"
       ]
     },
     {
@@ -1172,7 +1198,53 @@
       ]
     },
     {
-      "category": "bills",
+      "category": "bills_internet",
+      "brands": [
+        "airtel ?(xstream|fiber|fibre|broadband)",
+        "jio ?(fiber|fibre|airfiber)",
+        "bsnl ?(ftth|bharat ?fiber|broadband)",
+        "act ?fibernet",
+        "act ?broadband",
+        "hathway",
+        "excitel",
+        "you ?broadband",
+        "tikona",
+        "spectranet",
+        "netplus"
+      ],
+      "generic": [
+        "broadband",
+        "fibernet",
+        "fiber ?net",
+        "internet",
+        "\\bftth\\b",
+        "\\bisp\\b"
+      ]
+    },
+    {
+      "category": "bills_dth",
+      "brands": [
+        "airtel ?(digital ?tv|dth)",
+        "jio ?tv ?\\+?",
+        "tata ?play",
+        "tata ?sky",
+        "dish ?tv",
+        "\\bd2h\\b",
+        "sun ?direct",
+        "den ?networks",
+        "\\bgtpl\\b",
+        "asianet",
+        "kerala ?vision",
+        "siti ?(cable|networks?)"
+      ],
+      "generic": [
+        "\\bdth\\b",
+        "cable ?(tv|network)",
+        "set ?top ?box"
+      ]
+    },
+    {
+      "category": "bills_mobile",
       "brands": [
         "airtel",
         "\\bjio\\b",
@@ -1181,19 +1253,19 @@
         "\\bvi\\b",
         "\\bvil\\b",
         "bsnl",
-        "mtnl",
-        "tata ?play",
-        "tata ?sky",
-        "dish ?tv",
-        "\\bd2h\\b",
-        "sun ?direct",
-        "act ?fibernet",
-        "act ?broadband",
-        "hathway",
-        "excitel",
-        "you ?broadband",
-        "tikona",
-        "spectranet",
+        "mtnl"
+      ],
+      "generic": [
+        "recharge",
+        "postpaid",
+        "prepaid",
+        "telecom",
+        "mobile ?bill"
+      ]
+    },
+    {
+      "category": "bills_electricity",
+      "brands": [
         "bescom",
         "msedcl",
         "mahadiscom",
@@ -1216,28 +1288,6 @@
         "tgspdcl",
         "torrent ?power",
         "\\bmseb\\b",
-        "indraprastha ?gas",
-        "\\bigl\\b",
-        "mahanagar ?gas",
-        "\\bmgl\\b",
-        "gujarat ?gas",
-        "adani ?(total )?gas",
-        "indane",
-        "bharat ?gas",
-        "hp ?gas",
-        "jal ?board",
-        "bwssb",
-        "\\bbbps\\b",
-        "bill ?desk",
-        "billdesk",
-        "paytm ?bill",
-        "bharat ?bill",
-        "den ?networks",
-        "\\bgtpl\\b",
-        "asianet",
-        "kerala ?vision",
-        "siti ?(cable|networks?)",
-        "netplus",
         "\\bjdvvnl\\b",
         "\\bavvnl\\b",
         "\\bmgvcl\\b",
@@ -1263,9 +1313,43 @@
         "\\bhpsebl?\\b",
         "\\bupcl\\b",
         "noida ?power",
-        "\\bapdcl\\b",
+        "\\bapdcl\\b"
+      ],
+      "generic": [
+        "electricity",
+        "power ?distribution",
+        "\\bdiscom\\b",
+        "vidyut",
+        "bijli"
+      ]
+    },
+    {
+      "category": "bills_gas",
+      "brands": [
+        "indraprastha ?gas",
+        "\\bigl\\b",
+        "mahanagar ?gas",
+        "\\bmgl\\b",
+        "gujarat ?gas",
+        "adani ?(total )?gas",
+        "indane",
+        "bharat ?gas",
+        "hp ?gas",
         "\\bmngl\\b",
-        "\\bcugl\\b",
+        "\\bcugl\\b"
+      ],
+      "generic": [
+        "\\bgas\\b",
+        "\\blpg\\b",
+        "\\bpng\\b",
+        "cylinder"
+      ]
+    },
+    {
+      "category": "bills_water",
+      "brands": [
+        "jal ?board",
+        "bwssb",
         "\\bdjb\\b",
         "\\bhmwssb\\b",
         "\\bcmwssb\\b",
@@ -1273,19 +1357,21 @@
         "kerala ?water ?authority"
       ],
       "generic": [
-        "electricity",
-        "power ?distribution",
-        "\\bgas\\b",
-        "\\blpg\\b",
-        "water ?(bill|supply)",
-        "broadband",
-        "fibernet",
-        "internet",
-        "telecom",
-        "recharge",
-        "postpaid",
-        "prepaid",
-        "\\bdth\\b",
+        "water ?(bill|supply|tax|charges)",
+        "jal ?(board|nigam|sansthan)",
+        "sewerage"
+      ]
+    },
+    {
+      "category": "bills",
+      "brands": [
+        "\\bbbps\\b",
+        "bill ?desk",
+        "billdesk",
+        "paytm ?bill",
+        "bharat ?bill"
+      ],
+      "generic": [
         "utility",
         "utilities",
         "\\bbill\\b"
